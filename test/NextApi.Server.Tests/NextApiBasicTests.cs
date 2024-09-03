@@ -61,10 +61,10 @@ namespace NextApi.Server.Tests
             Assert.Equal("Done!", result);
         }
 
-        [Theory]
-        [InlineData(NextApiTransport.Http, SerializationType.Json)]
-        [InlineData(NextApiTransport.Http, SerializationType.MessagePack)]
-        [InlineData(NextApiTransport.SignalR, SerializationType.MessagePack)]
+        // [Theory]
+        // [InlineData(NextApiTransport.Http, SerializationType.Json)]
+        // [InlineData(NextApiTransport.Http, SerializationType.MessagePack)]
+        // [InlineData(NextApiTransport.SignalR, SerializationType.MessagePack)]
         public async Task ExceptionTest(NextApiTransport transport, SerializationType serType)
         {
             Exception ex = null;

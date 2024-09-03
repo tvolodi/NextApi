@@ -1,25 +1,38 @@
-﻿<Project Sdk="Microsoft.NET.Sdk">
+<Project Sdk="Microsoft.NET.Sdk">
   <PropertyGroup>
     <PackageId>NextApi.Client.MicrosoftDI</PackageId>
     <Description>NextApi.Client with ASP.NET Core apps</Description>
     <Authors>Binali Rustamov; Yedige Omarbekov; Zarina Ulykpanova</Authors>
     <Company>DotNetNomads</Company>
     <RepositoryUrl>https://github.com/DotNetNomads/NextApi</RepositoryUrl>
-    <LangVersion>8</LangVersion>
+    <LangVersion>latest</LangVersion>
+    <Configurations>Debug;Release;Developer</Configurations>
+    <Platforms>AnyCPU</Platforms>
+    <Nullable>disable</Nullable>
   </PropertyGroup>
   <PropertyGroup>
-    <TargetFramework>netstandard2.0</TargetFramework>
+    <TargetFramework>net8.0</TargetFramework>
   </PropertyGroup>
-
   <PropertyGroup Condition=" '$(Configuration)' == 'Debug' ">
     <DocumentationFile>bin\Debug\NextApi.Client.MicrosoftDI.xml</DocumentationFile>
   </PropertyGroup>
-
   <PropertyGroup Condition=" '$(Configuration)' == 'Release' ">
     <DocumentationFile>bin\Release\NextApi.Client.MicrosoftDI.xml</DocumentationFile>
   </PropertyGroup>
+  <PropertyGroup Condition=" '$(Configuration)' == 'Developer' ">
+    <DebugType>Full</DebugType>
+    <DebugSymbols>True</DebugSymbols>
+    <AllowedOutputExtensionsInPackageBuildOutputFolder>$(AllowedOutputExtensionsInPackageBuildOutputFolder);.pdb</AllowedOutputExtensionsInPackageBuildOutputFolder>
+    <GeneratePackageOnBuild>True</GeneratePackageOnBuild>
+    <PackageOutputPath>$(HOMEDRIVE)\.nuget-local</PackageOutputPath>
+  </PropertyGroup>
+  <Target Name="NugetRemoveDir" AfterTargets="AfterCompile" Condition=" '$(Configuration)' == 'Developer' ">
+    <RemoveDir Directories="$(NuGetPackageRoot)$(AssemblyName.ToLower())\$(Version)" />
+  </Target>
   <ItemGroup>
     <ProjectReference Include="..\NextApi.Client\NextApi.Client.csproj" />
   </ItemGroup>
-
+  <PropertyGroup>
+    <Version>2.0.0.71</Version>
+  </PropertyGroup>
 </Project>

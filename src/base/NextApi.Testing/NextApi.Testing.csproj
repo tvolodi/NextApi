@@ -1,30 +1,42 @@
 <Project Sdk="Microsoft.NET.Sdk">
-
   <PropertyGroup>
     <PackageId>NextApi.Testing</PackageId>
     <Description>Package contains tools that simplify testing process of NextApi based projects</Description>
     <Authors>Binali Rustamov; Yedige Omarbekov; Zarina Ulykpanova</Authors>
     <Company>DotNetNomads</Company>
     <RepositoryUrl>https://github.com/DotNetNomads/NextApi</RepositoryUrl>
-    <TargetFramework>netcoreapp3.1</TargetFramework>
+    <TargetFramework>net8.0</TargetFramework>
+    <Configurations>Debug;Release;Developer</Configurations>
+    <Platforms>AnyCPU</Platforms>
+    <LangVersion>latest</LangVersion>
+    <Nullable>disable</Nullable>
   </PropertyGroup>
-
   <PropertyGroup Condition=" '$(Configuration)' == 'Debug' ">
     <DocumentationFile>bin\Debug\NextApi.Testing.xml</DocumentationFile>
   </PropertyGroup>
-
   <PropertyGroup Condition=" '$(Configuration)' == 'Release' ">
     <DocumentationFile>bin\Release\NextApi.Testing.xml</DocumentationFile>
   </PropertyGroup>
-
+  <PropertyGroup Condition=" '$(Configuration)' == 'Developer' ">
+    <DebugType>Full</DebugType>
+    <DebugSymbols>True</DebugSymbols>
+    <AllowedOutputExtensionsInPackageBuildOutputFolder>$(AllowedOutputExtensionsInPackageBuildOutputFolder);.pdb</AllowedOutputExtensionsInPackageBuildOutputFolder>
+    <GeneratePackageOnBuild>True</GeneratePackageOnBuild>
+    <PackageOutputPath>$(HOMEDRIVE)\.nuget-local</PackageOutputPath>
+  </PropertyGroup>
+  <Target Name="NugetRemoveDir" AfterTargets="AfterCompile" Condition=" '$(Configuration)' == 'Developer' ">
+    <RemoveDir Directories="$(NuGetPackageRoot)$(AssemblyName.ToLower())\$(Version)" />
+  </Target>
   <ItemGroup>
-    <PackageReference Include="MartinCostello.Logging.XUnit" Version="0.1.0" />
-    <PackageReference Include="Microsoft.AspNetCore.Mvc.Testing" Version="3.1.3" />
-    <PackageReference Include="Pomelo.EntityFrameworkCore.MySql" Version="3.1.1" />
+    <PackageReference Include="MartinCostello.Logging.XUnit" Version="0.4.0" />
+    <PackageReference Include="Microsoft.AspNetCore.Mvc.Testing" Version="8.0.8" />
+    <PackageReference Include="Pomelo.EntityFrameworkCore.MySql" Version="8.0.2" />
   </ItemGroup>
   <ItemGroup>
     <ProjectReference Include="..\..\client\NextApi.Client\NextApi.Client.csproj" />
     <ProjectReference Include="..\..\server\NextApi.Server.EfCore\NextApi.Server.EfCore.csproj" />
   </ItemGroup>
-
+  <PropertyGroup>
+    <Version>2.0.0.71</Version>
+  </PropertyGroup>
 </Project>

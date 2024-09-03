@@ -20,27 +20,14 @@ namespace NextApi.Server.Entity
         /// <exception cref="ArgumentException"></exception>
         public static IQueryable<TEntity> GenerateOrdering<TEntity>(this IQueryable<TEntity> source, Order[] orders)
         {
-            foreach (var order in orders)
+            return orders.Aggregate(source, (current, order) => order.OrderOperator switch
             {
-                switch (order.OrderOperator)
-                {
-                    case OrderOperators.OrderBy:
-                        source = ApplyOrder(source, order.Property, "OrderBy");
-                        break;
-                    case OrderOperators.ThenBy:
-                        source = ApplyOrder(source, order.Property, "ThenBy");
-                        break;
-                    case OrderOperators.OrderByDescending:
-                        source = ApplyOrder(source, order.Property, "OrderByDescending");
-                        break;
-                    case OrderOperators.ThenByDescending:
-                        source = ApplyOrder(source, order.Property, "ThenByDescending");
-                        break;
-                    default:
-                        throw new ArgumentException(nameof(order.OrderOperator));
-                }
-            }
-            return source;
+                OrderOperators.OrderBy => ApplyOrder(current, order.Property, "OrderBy"),
+                OrderOperators.ThenBy => ApplyOrder(current, order.Property, "ThenBy"),
+                OrderOperators.OrderByDescending => ApplyOrder(current, order.Property, "OrderByDescending"),
+                OrderOperators.ThenByDescending => ApplyOrder(current, order.Property, "ThenByDescending"),
+                _ => throw new ArgumentException(nameof(order.OrderOperator))
+            });
         }
         
         // more info https://stackoverflow.com/questions/41244/dynamic-linq-orderby-on-ienumerablet-iqueryablet

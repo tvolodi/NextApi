@@ -1,93 +1,152 @@
-# common
-.main-master: &main-master "master@binali-rustamov/NextApi"
-.dotnet-job: &dotnet-job
-  image: mcr.microsoft.com/dotnet/core/sdk:3.1
-
-.docker-job: &docker-job
-  image: hub.abitech.kz/docker:latest
-
-.nugetize: &nugetize
-  stage: deploy
-  when: manual
-  only:
-    - *main-master
-  <<: *dotnet-job
-  script:
-    - cd $projectFolder
-    - dotnet pack --configuration Release -p:Version=$VERSION
-    - dotnet nuget push "bin/Release/$projectName.$VERSION.nupkg"  -k $NugetKey  -s https://api.nuget.org/v3/index.json
-
-# declaration
-variables:
-  VERSION: "1.1.3"
-  BASE_DOC_DOCKER_IMAGE: abitech/nextapi-docs
+# ----------- DECLARATION & JOBS ----------- #
 
 stages:
+  - build
+  - test
   - deploy
 
-# deploy
-nugetize-testing:
-  <<: *nugetize
+# Declare a runner
+.docker: &docker
+  tags:
+    - docker
+
+# Master branch
+.master: &master "master@development/abitech.nextapi"
+
+# Run docker-container in runner with dotnet 6.0 image
+.dotnet-job: &dotnet-job
+  <<: *docker
+  image: mcr.microsoft.com/dotnet/sdk:7.0
+
+# ----------- END OF DECLARATION & JOBS SECTION ----------- #
+
+# ----------- VARIABLES ----------- #
+
+variables:
+  VER: "2.0.0"
+  VERSION: "$VER.$CI_PIPELINE_IID-abitech" # '-abitech' suffix required, cause our repository is fork.
+
+# ----------- END OF VARIABLES SECTION ----------- #
+
+# ----------- BUILD ----------- #
+
+# Common Build stage
+.distro: &distro
+  stage: build
+  <<: *dotnet-job
+  only:
+    - merge_requests
+  script:
+    - cd $projectFolder
+    - dotnet build --configuration Release
+
+# Build NextApi.Testing project
+distro-testing:
+  <<: *distro
   variables:
     projectFolder: src/base/NextApi.Testing
-    projectName: NextApi.Testing
 
-nugetize-common:
-  <<: *nugetize
+# Build NextApi.Common project
+distro-common:
+  <<: *distro
   variables:
     projectFolder: src/base/NextApi.Common
-    projectName: NextApi.Common
 
-nugetize-common-server:
-  <<: *nugetize
+# Build NextApi.Server.Common project
+distro-server-common:
+  <<: *distro
   variables:
     projectFolder: src/base/NextApi.Server.Common
-    projectName: NextApi.Server.Common
 
-nugetize-common-uploadqueue:
-  <<: *nugetize
+# Build NextApi.UploadQueue.Common project
+distro-uploadqueue-common:
+  <<: *distro
   variables:
     projectFolder: src/base/NextApi.UploadQueue.Common
-    projectName: NextApi.UploadQueue.Common
 
-nugetize-client:
-  <<: *nugetize
+# Build NextApi.Client project
+distro-client:
+  <<: *distro
   variables:
     projectFolder: src/client/NextApi.Client
-    projectName: NextApi.Client
 
-nugetize-client-uploadqueue:
-  <<: *nugetize
+# Build NextApi.Client.UploadQueue project
+distro-client-uploadqueue:
+  <<: *distro
   variables:
     projectFolder: src/client/NextApi.Client.UploadQueue
-    projectName: NextApi.Client.UploadQueue
 
-nugetize-client-autofac:
-  <<: *nugetize
+# Build NextApi.Client.Autofac project
+distro-client-autofac:
+  <<: *distro
   variables:
     projectFolder: src/client/NextApi.Client.Autofac
-    projectName: NextApi.Client.Autofac
 
-nugetize-client-microsoft-di:
-  <<: *nugetize
+# Build NextApi.Client.MicrosoftDI project
+distro-client-microsoft-di:
+  <<: *distro
   variables:
     projectFolder: src/client/NextApi.Client.MicrosoftDI
-    projectName: NextApi.Client.MicrosoftDI
 
-nugetize-server:
-  <<: *nugetize
+# Build NextApi.Server project
+distro-server:
+  <<: *distro
   variables:
     projectFolder: src/server/NextApi.Server
-    projectName: NextApi.Server
 
-nugetize-server-efcore:
-  <<: *nugetize
+# Build NextApi.Server.EfCore project
+distro-server-efcore:
+  <<: *distro
   variables:
     projectFolder: src/server/NextApi.Server.EfCore
-    projectName: NextApi.Server.EfCore
 
-nugetize-server-uploadqueue:
-  <<: *nugetize
+# Build NextApi.Server.UploadQueue project
+distro-server-uploadqueue:
+  <<: *distro
   variables:
     projectFolder: src/server/NextApi.Server.UploadQueue
-    projectName: NextApi.Server.UploadQueue
+
+
+# ----------- END OF BUILD SECTION ----------- #
+
+# ----------- TEST ----------- #
+
+# Common Test stage
+.dotnet-test: &dotnet-test
+  stage: test
+  <<: *dotnet-job
+  only:
+    - merge_requests
+  script:
+    - cd $projectFolder
+    - dotnet test --verbosity normal --configuration Release
+
+test-client:
+  <<: *dotnet-test
+  variables:
+    projectFolder: test/NextApi.Client.Tests
+
+test-server:
+  <<: *dotnet-test
+  variables:
+    NEXTAPI_TESTDB_PORT: "3306"
+    NEXTAPI_TESTDB_HOST: "blade1.abitech.kz"
+    projectFolder: test/NextApi.Server.Tests
+
+test-ef-core:
+  <<: *dotnet-test
+  variables:
+    projectFolder: test/NextApi.Server.EfCore.Tests
+
+# ----------- END OF TEST SECTION ----------- #
+
+# ----------- NUGETIZE ----------- #
+
+nuget-bridge:
+  only:
+    - *master
+  stage: deploy
+  trigger:
+    include: nuget.gitlab-ci.yml
+
+# ----------- END OF NUGETIZE SECTION ----------- #

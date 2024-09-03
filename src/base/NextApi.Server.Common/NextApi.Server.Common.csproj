@@ -1,28 +1,39 @@
 <Project Sdk="Microsoft.NET.Sdk">
-
   <PropertyGroup>
     <PackageId>NextApi.Server.Common</PackageId>
     <Description>Common abstractions for NextApi server-side package.</Description>
     <Authors>Binali Rustamov; Yedige Omarbekov; Zarina Ulykpanova</Authors>
     <Company>DotNetNomads</Company>
     <RepositoryUrl>https://github.com/DotNetNomads/NextApi</RepositoryUrl>
-    <TargetFramework>netstandard2.0</TargetFramework>
+    <TargetFramework>net8.0</TargetFramework>
+    <Configurations>Debug;Release;Developer</Configurations>
+    <Platforms>AnyCPU</Platforms>
+    <LangVersion>latest</LangVersion>
+    <Nullable>disable</Nullable>
   </PropertyGroup>
-
   <PropertyGroup Condition=" '$(Configuration)' == 'Debug' ">
     <DocumentationFile>bin\Debug\NextApi.Server.Common.xml</DocumentationFile>
   </PropertyGroup>
-
   <PropertyGroup Condition=" '$(Configuration)' == 'Release' ">
     <DocumentationFile>bin\Release\NextApi.Server.Common.xml</DocumentationFile>
   </PropertyGroup>
-
+  <PropertyGroup Condition=" '$(Configuration)' == 'Developer' ">
+    <DebugType>Full</DebugType>
+    <DebugSymbols>True</DebugSymbols>
+    <AllowedOutputExtensionsInPackageBuildOutputFolder>$(AllowedOutputExtensionsInPackageBuildOutputFolder);.pdb</AllowedOutputExtensionsInPackageBuildOutputFolder>
+    <GeneratePackageOnBuild>True</GeneratePackageOnBuild>
+    <PackageOutputPath>$(HOMEDRIVE)\.nuget-local</PackageOutputPath>
+  </PropertyGroup>
+  <Target Name="NugetRemoveDir" AfterTargets="AfterCompile" Condition=" '$(Configuration)' == 'Developer' ">
+    <RemoveDir Directories="$(NuGetPackageRoot)$(AssemblyName.ToLower())\$(Version)" />
+  </Target>
   <ItemGroup>
-    <PackageReference Include="Microsoft.Extensions.DependencyInjection.Abstractions" Version="3.1.3" />
+    <PackageReference Include="Microsoft.Extensions.DependencyInjection.Abstractions" Version="8.0.1" />
   </ItemGroup>
-
   <ItemGroup>
     <ProjectReference Include="..\NextApi.Common\NextApi.Common.csproj" />
   </ItemGroup>
-
+  <PropertyGroup>
+    <Version>2.0.0.71</Version>
+  </PropertyGroup>
 </Project>

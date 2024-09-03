@@ -220,6 +220,7 @@ namespace NextApi.Server.Entity
                 // (there is NextApi.Server.Tests.NextApiBasicTests.TestFilterGuidProperty test for that)
                 string strGuid when (type == typeof(Guid) || type == typeof(Guid?)) => new Guid(strGuid),
                 // this is in case when JsonConverter parsed int as long or other type...
+                _ when val.GetType() != type => val.Cast(type),
                 _ when val.GetType() != typeof(int) && type == typeof(int) || type == typeof(int?) =>
                 Convert.ChangeType(val, typeof(int)),
                 _ => val

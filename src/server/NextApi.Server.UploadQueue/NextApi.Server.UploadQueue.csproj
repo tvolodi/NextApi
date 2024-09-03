@@ -1,26 +1,37 @@
 <Project Sdk="Microsoft.NET.Sdk">
-
   <PropertyGroup>
-    <TargetFramework>netstandard2.0</TargetFramework>
-    <LangVersion>8</LangVersion>
+    <TargetFramework>net8.0</TargetFramework>
+    <LangVersion>latest</LangVersion>
     <PackageId>NextApi.Server.UploadQueue</PackageId>
     <Description>Server-side implementation of UploadQueue mechanism</Description>
     <Authors>Binali Rustamov; Yedige Omarbekov; Zarina Ulykpanova</Authors>
     <Company>DotNetNomads</Company>
     <RepositoryUrl>https://github.com/DotNetNomads/NextApi</RepositoryUrl>
+    <Configurations>Debug;Release;Developer</Configurations>
+    <Platforms>AnyCPU</Platforms>
   </PropertyGroup>
-
   <PropertyGroup Condition=" '$(Configuration)' == 'Debug' ">
     <DocumentationFile>bin\Debug\NextApi.Server.UploadQueue.xml</DocumentationFile>
   </PropertyGroup>
-
   <PropertyGroup Condition=" '$(Configuration)' == 'Release' ">
     <DocumentationFile>bin\Release\NextApi.Server.UploadQueue.xml</DocumentationFile>
   </PropertyGroup>
+  <PropertyGroup Condition=" '$(Configuration)' == 'Developer' ">
+    <DebugType>Full</DebugType>
+    <DebugSymbols>True</DebugSymbols>
+    <AllowedOutputExtensionsInPackageBuildOutputFolder>$(AllowedOutputExtensionsInPackageBuildOutputFolder);.pdb</AllowedOutputExtensionsInPackageBuildOutputFolder>
+    <GeneratePackageOnBuild>True</GeneratePackageOnBuild>
+    <PackageOutputPath>$(HOMEDRIVE)\.nuget-local</PackageOutputPath>
+  </PropertyGroup>
+  <Target Name="NugetRemoveDir" AfterTargets="AfterCompile" Condition=" '$(Configuration)' == 'Developer' ">
+    <RemoveDir Directories="$(NuGetPackageRoot)$(AssemblyName.ToLower())\$(Version)" />
+  </Target>
   <ItemGroup>
     <ProjectReference Include="..\..\base\NextApi.Server.Common\NextApi.Server.Common.csproj" />
     <ProjectReference Include="..\..\base\NextApi.UploadQueue.Common\NextApi.UploadQueue.Common.csproj" />
     <ProjectReference Include="..\NextApi.Server.EfCore\NextApi.Server.EfCore.csproj" />
   </ItemGroup>
-
+  <PropertyGroup>
+    <Version>2.0.0.71</Version>
+  </PropertyGroup>
 </Project>

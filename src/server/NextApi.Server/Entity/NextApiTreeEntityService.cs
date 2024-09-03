@@ -1,4 +1,4 @@
-using System.Linq;
+﻿using System.Linq;
 using System.Threading.Tasks;
 using AutoMapper;
 using NextApi.Common.Abstractions;
@@ -36,8 +36,8 @@ namespace NextApi.Server.Entity
         {
             var entitiesQuery = _repository.GetAll();
             entitiesQuery = await BeforeGet(entitiesQuery);
-            
-            var rootQuery = entitiesQuery.Where(e=> e.ParentId.Equals(request.ParentId));
+
+            var rootQuery = entitiesQuery.Where(e => e.ParentId.Equals(request.ParentId));
             var totalCount = 0;
 
             if (request.PagedRequest != null)
@@ -49,6 +49,8 @@ namespace NextApi.Server.Entity
                 }
 
                 totalCount = rootQuery.Count();
+                if (request.PagedRequest.Orders != null)
+                    rootQuery = rootQuery.GenerateOrdering(request.PagedRequest.Orders);
                 if (request.PagedRequest.Skip != null)
                     rootQuery = rootQuery.Skip(request.PagedRequest.Skip.Value);
                 if (request.PagedRequest.Take != null)
@@ -58,7 +60,7 @@ namespace NextApi.Server.Entity
             }
 
             var treeChunk = await _repository.ToArrayAsync(rootQuery
-                .Select(e => new {Entity = e, ChildrenCount = entitiesQuery.Count(ce => e.Id.Equals(ce.ParentId))}));
+                .Select(e => new { Entity = e, ChildrenCount = entitiesQuery.Count(ce => e.Id.Equals(ce.ParentId)) }));
             var output = treeChunk.Select(chunkItem =>
                 new TreeItem<TDto>
                 {

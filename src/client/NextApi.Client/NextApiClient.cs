@@ -1,8 +1,10 @@
-using System;
+﻿using System;
+using System.Collections;
 using System.Collections.Generic;
 using System.Linq;
 using System.Net;
 using System.Net.Http;
+using System.Text;
 using System.Threading.Tasks;
 using MessagePack;
 using MessagePack.Resolvers;
@@ -168,10 +170,7 @@ namespace NextApi.Client
                     ConnectionOptionsConfig)
                 .AddMessagePackProtocol(options =>
                 {
-                    options.FormatterResolvers = new List<IFormatterResolver>
-                    {
-                        TypelessContractlessStandardResolver.Instance
-                    };
+                    options.SerializerOptions = new MessagePackSerializerOptions(TypelessContractlessStandardResolver.Instance);
                 })
                 .Build();
 
@@ -319,8 +318,9 @@ namespace NextApi.Client
                 case SerializationType.MessagePack:
                 {
                     var resultByteArray = await response.Content.ReadAsByteArrayAsync();
-                    var result = (NextApiResponse) MessagePackSerializer.Typeless.Deserialize(resultByteArray);
-                    if (!result.Success)
+                        var jsonString = Encoding.UTF8.GetString(resultByteArray);
+                        var result = JsonConvert.DeserializeObject<NextApiResponse>(jsonString);
+                        if (!result.Success)
                         throw NextApiClientUtils.NextApiException(result.Error);
                     return (T) result.Data;
                 }

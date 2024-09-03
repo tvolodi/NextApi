@@ -2,7 +2,7 @@ using System;
 using System.Data;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.DependencyInjection;
-using MySql.Data.MySqlClient;
+using MySqlConnector;
 using NextApi.Server.EfCore.DAL;
 
 namespace NextApi.Testing.Data

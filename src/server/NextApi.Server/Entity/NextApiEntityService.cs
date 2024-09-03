@@ -1,4 +1,4 @@
-using System;
+﻿using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
@@ -24,6 +24,10 @@ namespace NextApi.Server.Entity
         where TDto : class, IEntityDto<TKey>
         where TEntity : class, IEntity<TKey>
     {
+        const string OPERATION_TYPE_CREATE = "CREATE";
+        const string OPERATION_TYPE_UPDATE = "UPDATE";
+        const string OPERATION_TYPE_DELETE = "DELETE";
+
         private readonly IUnitOfWork _unitOfWork;
         private readonly IRepo<TEntity, TKey> _repository;
         private readonly IMapper _mapper;
@@ -55,7 +59,7 @@ namespace NextApi.Server.Entity
             await BeforeCreate(entityFromDto);
             await _repository.AddAsync(entityFromDto);
             await AfterCreate(entityFromDto);
-            await CommitAsync();
+            await CommitAsync(entityFromDto, OPERATION_TYPE_CREATE);
             var insertedEntity = await _repository.GetByIdAsync(entityFromDto.Id);
             return _mapper.Map<TEntity, TDto>(insertedEntity);
         }
@@ -74,7 +78,7 @@ namespace NextApi.Server.Entity
             await BeforeDelete(entity);
             await _repository.DeleteAsync(entity);
             await AfterDelete(entity);
-            await CommitAsync();
+            await CommitAsync(entity, OPERATION_TYPE_DELETE);
         }
 
 
@@ -89,7 +93,7 @@ namespace NextApi.Server.Entity
             NextApiUtils.PatchEntity(patch, entity);
             await _repository.UpdateAsync(entity);
             await AfterUpdate(entity);
-            await CommitAsync();
+            await CommitAsync(entity, OPERATION_TYPE_UPDATE);
             var updatedEntity = await _repository.GetByIdAsync(entity.Id);
             return _mapper.Map<TEntity, TDto>(updatedEntity);
         }
@@ -199,12 +203,20 @@ namespace NextApi.Server.Entity
         /// Commits changes in data repository
         /// </summary>
         /// <returns></returns>
-        protected async Task CommitAsync()
+        protected async Task CommitAsync(TEntity entity = null, string operationType = OPERATION_TYPE_UPDATE)
         {
             if (AutoCommit)
             {
                 await _unitOfWork.CommitAsync();
-                await AfterCommit();
+
+                try
+                {
+                    await AfterCommit(entity, operationType);
+                }
+                catch (Exception e)
+                {
+                    Console.WriteLine($"Error to {operationType} entity {entity} {e.ToString()}");
+                }
             }
         }
 
@@ -288,7 +300,7 @@ namespace NextApi.Server.Entity
         /// </summary>
         /// <returns></returns>
 #pragma warning disable 1998
-        protected virtual async Task AfterCommit()
+        protected virtual async Task AfterCommit(TEntity entity, string operationType)
 #pragma warning restore 1998
         {
         }

@@ -1,28 +1,38 @@
 <Project Sdk="Microsoft.NET.Sdk">
-
   <PropertyGroup>
-    <TargetFramework>netstandard2.0</TargetFramework>
+    <TargetFramework>net8.0</TargetFramework>
     <PackageId>NextApi.Client.Autofac</PackageId>
     <Description>NextApi.Client integration with Autofac</Description>
     <Authors>Binali Rustamov; Yedige Omarbekov; Zarina Ulykpanova</Authors>
     <Company>DotNetNomads</Company>
     <RepositoryUrl>https://github.com/DotNetNomads/NextApi</RepositoryUrl>
-    <LangVersion>8</LangVersion>
+    <LangVersion>latest</LangVersion>
+    <Configurations>Debug;Release;Developer</Configurations>
+    <Platforms>AnyCPU</Platforms>
   </PropertyGroup>
-
   <PropertyGroup Condition=" '$(Configuration)' == 'Debug' ">
     <DocumentationFile>bin\Debug\NextApi.Client.Autofac.xml</DocumentationFile>
   </PropertyGroup>
-
   <PropertyGroup Condition=" '$(Configuration)' == 'Release' ">
     <DocumentationFile>bin\Release\NextApi.Client.Autofac.xml</DocumentationFile>
   </PropertyGroup>
-
+  <PropertyGroup Condition=" '$(Configuration)' == 'Developer' ">
+    <DebugType>Full</DebugType>
+    <DebugSymbols>True</DebugSymbols>
+    <AllowedOutputExtensionsInPackageBuildOutputFolder>$(AllowedOutputExtensionsInPackageBuildOutputFolder);.pdb</AllowedOutputExtensionsInPackageBuildOutputFolder>
+    <GeneratePackageOnBuild>True</GeneratePackageOnBuild>
+    <PackageOutputPath>$(HOMEDRIVE)\.nuget-local</PackageOutputPath>
+  </PropertyGroup>
+  <Target Name="NugetRemoveDir" AfterTargets="AfterCompile" Condition=" '$(Configuration)' == 'Developer' ">
+    <RemoveDir Directories="$(NuGetPackageRoot)$(AssemblyName.ToLower())\$(Version)" />
+  </Target>
   <ItemGroup>
-    <PackageReference Include="Autofac" Version="5.1.4" />
+    <PackageReference Include="Autofac" Version="8.0.0" />
   </ItemGroup>
   <ItemGroup>
     <ProjectReference Include="..\NextApi.Client\NextApi.Client.csproj" />
   </ItemGroup>
-
+  <PropertyGroup>
+    <Version>2.0.0.71</Version>
+  </PropertyGroup>
 </Project>

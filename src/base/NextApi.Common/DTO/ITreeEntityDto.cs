@@ -1,4 +1,4 @@
-namespace NextApi.Common.DTO
+﻿namespace NextApi.Common.DTO
 {
     /// <summary>
     /// Basic interface for Tree Entity DTO

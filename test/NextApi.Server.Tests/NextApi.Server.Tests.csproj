@@ -1,28 +1,30 @@
-﻿<Project Sdk="Microsoft.NET.Sdk">
-
+<Project Sdk="Microsoft.NET.Sdk">
   <PropertyGroup>
-    <TargetFramework>netcoreapp3.1</TargetFramework>
+    <TargetFramework>net8.0</TargetFramework>
     <IsPackable>false</IsPackable>
-    <LangVersion>8</LangVersion>
+    <LangVersion>latest</LangVersion>
     <ParallelizeTestCollections>false</ParallelizeTestCollections>
     <MaxParallelThreads>1</MaxParallelThreads>
     <PreEnumerateTheories>false</PreEnumerateTheories>
+    <Configurations>Debug;Release;Developer</Configurations>
+    <Platforms>AnyCPU</Platforms>
+    <Nullable>disable</Nullable>
   </PropertyGroup>
-
   <ItemGroup>
-    <PackageReference Include="DeepEqual" Version="2.0.0"/>
-    <PackageReference Include="Microsoft.NET.Test.Sdk" Version="16.6.1"/>
-    <PackageReference Include="Moq" Version="4.14.1"/>
-    <PackageReference Include="xunit" Version="2.4.1"/>
-    <PackageReference Include="xunit.runner.visualstudio" Version="2.4.1"/>
+    <PackageReference Include="DeepEqual" Version="5.1.0" />
+    <PackageReference Include="Microsoft.NET.Test.Sdk" Version="17.11.0" />
+    <PackageReference Include="Moq" Version="4.20.69" />
+    <PackageReference Include="xunit" Version="2.8.1" />
+    <PackageReference Include="xunit.runner.visualstudio" Version="2.8.2">
+      <PrivateAssets>all</PrivateAssets>
+      <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
+    </PackageReference>
   </ItemGroup>
-
   <ItemGroup>
-    <ProjectReference Include="..\..\src\base\NextApi.Testing\NextApi.Testing.csproj"/>
-    <ProjectReference Include="..\test-server\NextApi.TestClient\NextApi.TestClient.csproj"/>
-    <ProjectReference Include="..\test-server\NextApi.TestServer\NextApi.TestServer.csproj"/>
+    <ProjectReference Include="..\..\src\base\NextApi.Testing\NextApi.Testing.csproj" />
+    <ProjectReference Include="..\test-server\NextApi.TestClient\NextApi.TestClient.csproj" />
+    <ProjectReference Include="..\test-server\NextApi.TestServer\NextApi.TestServer.csproj" />
   </ItemGroup>
-
   <ItemGroup>
     <None Update="TestData\белонька.jpg">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
@@ -31,5 +33,7 @@
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </None>
   </ItemGroup>
-
+  <PropertyGroup>
+    <Version>2.0.0.71</Version>
+  </PropertyGroup>
 </Project>

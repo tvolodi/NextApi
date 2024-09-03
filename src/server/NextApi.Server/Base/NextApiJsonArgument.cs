@@ -8,6 +8,14 @@ namespace NextApi.Server.Base
     /// </summary>
     public class NextApiJsonArgument : INamedNextApiArgument
     {
+        /// <summary>
+        /// ctor
+        /// </summary>
+        public NextApiJsonArgument(string name, object value)
+        {
+            Name = name;
+            Value = value is null ? JValue.CreateNull() : JToken.FromObject(value);
+        }
 
         /// <summary>
         /// Argument value

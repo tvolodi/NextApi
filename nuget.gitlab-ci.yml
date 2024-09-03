@@ -1,0 +1,130 @@
+# ----------- DECLARATION & JOBS ----------- #
+
+# Declare a runner
+.docker: &docker
+  tags:
+    - docker
+
+# Run docker-container in runner with dotnet 7 image
+.dotnet-job: &dotnet-job
+  <<: *docker
+  image: mcr.microsoft.com/dotnet/sdk:7.0
+
+# ----------- END OF DECLARATION & JOBS SECTION ----------- #
+
+# ----------- NUGETIZE ----------- #
+
+# Common Nugetize stage
+.nugetize: &nugetize
+  stage: deploy
+  <<: *dotnet-job
+  script:
+    - cd $projectFolder
+    - dotnet pack --configuration Release -p:Version=$VERSION
+    - dotnet nuget push "bin/Release/$projectName.$VERSION.nupkg" -k $NugetApiKey -s $NugetSource;
+
+.nugetize-rules: &nugetize-rules
+  rules:
+    - changes:
+        - src/base/NextApi.Testing/**/*
+        - src/base/NextApi.Common/**/*
+        - src/base/NextApi.Server.Common/**/*
+        - src/base/NextApi.UploadQueue.Common/**/*
+        - src/client/NextApi.Client/**/*
+        - src/client/NextApi.Client.UploadQueue/**/*
+        - src/client/NextApi.Client.Autofac/**/*
+        - src/client/NextApi.Client.MicrosoftDI/**/*
+        - src/server/NextApi.Server/**/*
+        - src/server/NextApi.Server.EfCore/**/*
+        - src/server/NextApi.Server.UploadQueue/**/*
+    - when: manual 
+
+# Nugetize NextApi.Testing project
+nugetize-testing:
+  <<: *nugetize
+  <<: *nugetize-rules
+  variables:
+    projectFolder: src/base/NextApi.Testing
+    projectName: NextApi.Testing
+
+# Nugetize NextApi.Common project
+nugetize-common:
+  <<: *nugetize
+  <<: *nugetize-rules
+  variables:
+    projectFolder: src/base/NextApi.Common
+    projectName: NextApi.Common
+
+# Nugetize NextApi.Server.Common project
+nugetize-server-common:
+  <<: *nugetize
+  <<: *nugetize-rules
+  variables:
+    projectFolder: src/base/NextApi.Server.Common
+    projectName: NextApi.Server.Common
+
+# Nugetize NextApi.UploadQueue.Common project
+nugetize-uploadqueue-common:
+  <<: *nugetize
+  <<: *nugetize-rules
+  variables:
+    projectFolder: src/base/NextApi.UploadQueue.Common
+    projectName: NextApi.UploadQueue.Common
+
+# Nugetize NextApi.Client project
+nugetize-client:
+  <<: *nugetize
+  <<: *nugetize-rules
+  variables:
+    projectFolder: src/client/NextApi.Client
+    projectName: NextApi.Client
+
+# Nugetize NextApi.Client.UploadQueue project
+nugetize-client-uploadqueue:
+  <<: *nugetize
+  <<: *nugetize-rules
+  variables:
+    projectFolder: src/client/NextApi.Client.UploadQueue
+    projectName: NextApi.Client.UploadQueue
+
+# Nugetize NextApi.Client.Autofac project
+nugetize-client-autofac:
+  <<: *nugetize
+  <<: *nugetize-rules
+  variables:
+    projectFolder: src/client/NextApi.Client.Autofac
+    projectName: NextApi.Client.Autofac
+
+# Nugetize NextApi.Client.MicrosoftDI project
+nugetize-client-microsoft-di:
+  <<: *nugetize
+  <<: *nugetize-rules
+  variables:
+    projectFolder: src/client/NextApi.Client.MicrosoftDI
+    projectName: NextApi.Client.MicrosoftDI
+
+# Nugetize NextApi.Server project
+nugetize-server:
+  <<: *nugetize
+  <<: *nugetize-rules
+  variables:
+    projectFolder: src/server/NextApi.Server
+    projectName: NextApi.Server
+
+# Nugetize NextApi.Server.EfCore project
+nugetize-server-efcore:
+  <<: *nugetize
+  <<: *nugetize-rules
+  variables:
+    projectFolder: src/server/NextApi.Server.EfCore
+    projectName: NextApi.Server.EfCore
+
+# Nugetize NextApi.Server.UploadQueue project
+nugetize-server-uploadqueue:
+  <<: *nugetize
+  <<: *nugetize-rules
+  variables:
+    projectFolder: src/server/NextApi.Server.UploadQueue
+    projectName: NextApi.Server.UploadQueue
+
+# ----------- END OF NUGETIZE SECTION ----------- #

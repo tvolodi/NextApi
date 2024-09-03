@@ -14,6 +14,9 @@ namespace NextApi.Server.Tests.Base
         public static async Task GenerateUsers(this INextApiApplication application, int count = 15)
         {
             using var db = application.ResolveDbContext<ITestDbContext>();
+            foreach (var entity in db.Context.Users)
+                db.Context.Users.Remove(entity);
+            await db.Context.SaveChangesAsync();
             var role = CreateRole(1);
             await db.Context.Roles.AddAsync(role);
             await db.Context.SaveChangesAsync();
@@ -21,6 +24,7 @@ namespace NextApi.Server.Tests.Base
             await db.Context.Cities.AddAsync(city);
             await db.Context.SaveChangesAsync();
             var initialDate = new DateTime(2000, 01, 01);
+            var initialDateOffset = new DateTimeOffset(initialDate);
             for (var id = 1; id <= count; id++)
             {
                 var user = new TestUser
@@ -32,6 +36,7 @@ namespace NextApi.Server.Tests.Base
                     City = city,
                     Role = role,
                     Birthday = initialDate.AddYears(id),
+                    BirthdayAsOffset = initialDateOffset.AddYears(id),
                     ExtraInfo = id % 2 == 0 ? "even" : "odd",
                     DecimalProperty = id
                 };

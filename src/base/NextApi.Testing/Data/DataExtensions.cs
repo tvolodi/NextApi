@@ -1,7 +1,8 @@
-using System;
+﻿using System;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.DependencyInjection;
 using NextApi.Server.EfCore.DAL;
+using Pomelo.EntityFrameworkCore.MySql.Infrastructure;
 using Pomelo.EntityFrameworkCore.MySql.Storage;
 
 namespace NextApi.Testing.Data
@@ -18,7 +19,7 @@ namespace NextApi.Testing.Data
         /// <param name="connectionStringAdditional"></param>
         /// <typeparam name="TInterface">DbContext interface</typeparam>
         /// <typeparam name="TImplementation">DbContext implementation</typeparam>
-        public static void AddFakeMySqlDbContext<TInterface, TImplementation>(this IServiceCollection services,
+        public static void AddFakeMySqlDbContext<TInterface, TImplementation>(this IServiceCollection services, MySqlServerVersion mySqlServer,
             string connectionStringAdditional = "")
             where TInterface : class, INextApiDbContext
             where TImplementation : DbContext, TInterface
@@ -32,8 +33,7 @@ namespace NextApi.Testing.Data
             var dbName =
                 $"TestDb_{Guid.NewGuid()}";
             services.AddDbContext<TImplementation>(options =>
-                options.UseMySql($"Server={dbHost};Port={dbPort};User={dbUser};Database={dbName};Password={dbPassword};{connectionStringAdditional}",
-                    c => c.CharSet(CharSet.Utf8)));
+                options.UseMySql($"Server={dbHost};Port={dbPort};User={dbUser};Database={dbName};Password={dbPassword};{connectionStringAdditional}", mySqlServer));
             services.AddSingleton<ITestApplicationStatesHandler>(c =>
                 new TestApplicationStatesHandler<TImplementation>(c, dbHost, dbPort, dbUser, dbPassword, dbName,
                     connectionStringAdditional));

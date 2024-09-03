@@ -1,0 +1,6 @@
+﻿<Project>
+  <Target Name="CreateNugetSourceFolder" BeforeTargets="Restore">
+    <Message Importance="High" Text="Creating local nuget source folder $(MSBuildThisFileDirectory)%HOMEDRIVE%/.nuget-local..." />
+    <MakeDir Directories="$(MSBuildThisFileDirectory)%HOMEDRIVE%/.nuget-local" />
+  </Target>
+</Project>

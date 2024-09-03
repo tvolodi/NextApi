@@ -1,4 +1,4 @@
-using System;
+﻿using System;
 using AutoMapper;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.Extensions.DependencyInjection;
@@ -34,8 +34,7 @@ namespace NextApi.TestServer
                     options.AddService<TestService>().AllowToGuests();
                 })
                 .AddPermissionProvider<TestPermissionProvider>();
-            // OldGuids=true i have no idea why, but without this attribute, Guids can't be mapped to binary(16)
-            services.AddFakeMySqlDbContext<ITestDbContext, TestDbContext>("OldGuids=true");
+            services.AddFakeMySqlDbContext<ITestDbContext, TestDbContext>(new Microsoft.EntityFrameworkCore.MySqlServerVersion(new Version(8,0,1)),"GuidFormat=Binary16");
             services.AddDefaultUnitOfWork();
             services.AddTransient<IUploadQueueChangesHandler<TestCity>, TestUploadQueueChangesHandler>();
             services.AddCustomRepo<TestUser, int, ITestUserRepository, TestUserRepository>();

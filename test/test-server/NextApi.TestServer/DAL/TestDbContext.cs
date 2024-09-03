@@ -1,7 +1,9 @@
+using System;
 using Microsoft.EntityFrameworkCore;
 using NextApi.Common.Abstractions.Security;
 using NextApi.Server.UploadQueue.DAL;
 using NextApi.TestServer.Model;
+using Pomelo.EntityFrameworkCore.MySql.Infrastructure;
 
 namespace NextApi.TestServer.DAL
 {
@@ -22,6 +24,7 @@ namespace NextApi.TestServer.DAL
 
         protected override void OnModelCreating(ModelBuilder builder)
         {
+            builder.HasCharSet(CharSet.Utf8Mb4);
             builder.Entity<TestUser>(e =>
             {
                 e.HasOne(u => u.Role)
@@ -39,6 +42,17 @@ namespace NextApi.TestServer.DAL
                     .IsRequired(false);
             });
             builder.Entity<TestCity>().Property(t => t.Id).HasColumnType("binary(16)");
+            builder.Entity<TestUser>().HasData(new TestUser
+            {
+                Id = 1,
+                Name = "TestUserName",
+                Surname = "TestUserSurname",
+                Email = "TestUserEmail",
+                Enabled = true,
+                DecimalProperty = decimal.One,
+                Birthday =  DateTime.Parse("2000-10-30T19:30:00"),
+                BirthdayAsOffset = DateTimeOffset.Parse("2000-10-30T19:30:00+00:00")
+            });
         }
 
         public TestDbContext(DbContextOptions options, INextApiUserAccessor nextApiUserAccessor) : base(options,

@@ -1,9 +1,11 @@
 using System;
+using System.Collections.Generic;
 using System.IO;
 using System.Linq;
 using System.Threading.Tasks;
 using MessagePack;
 using Microsoft.AspNetCore.Http;
+using Microsoft.AspNetCore.Routing;
 using Newtonsoft.Json;
 using NextApi.Common;
 using NextApi.Common.Abstractions.Security;
@@ -31,11 +33,11 @@ namespace NextApi.Server.Base
         }
 
         /// <summary>
-        /// Entry point for HTTP requests
+        /// Entry point for NextApi HTTP requests
         /// </summary>
         /// <param name="context"></param>
         /// <returns></returns>
-        public async Task ProcessRequestAsync(HttpContext context)
+        public async Task ProcessNextApiHttpRequestAsync(HttpContext context)
         {
             var form = context.Request.Form;
 
@@ -82,6 +84,48 @@ namespace NextApi.Server.Base
             }
             else
                 await context.Response.SendJson(result);
+        }
+
+        /// <summary>
+        /// Entry point for NextApi HTTP requests
+        /// </summary>
+        /// <param name="context"></param>
+        /// <returns></returns>
+        public async Task ProcessHttpRequestAsync(HttpContext context)
+        {
+            var route = context.GetRouteData().Values;
+            var service = route["service"].ToString();
+            var method = route["method"].ToString();
+            _userAccessor.User = context.User;
+
+            var requestData = new Dictionary<string, object>();
+            if (context.Request.HasFormContentType)
+            {
+                var form = await context.Request.ReadFormAsync();
+                
+                requestData = form.Keys.ToDictionary(s => s, s => JsonConvert.DeserializeObject(form[s], SerializationUtils.GetJsonConfig()));
+                _request.FilesFromClient = form.Files;
+            }
+            else if (context.Request.ContentType == "application/json")
+            {
+                requestData = JsonConvert.DeserializeObject<Dictionary<string, object>>(await new StreamReader(context.Request.Body).ReadToEndAsync(), SerializationUtils.GetJsonConfig());
+            }
+
+            var command = new NextApiCommand
+            {
+                Service = service,
+                Method = method,
+                Args = requestData?.Select(s => new NextApiJsonArgument(s.Key, s.Value)).ToArray()
+            };
+
+            var result = await _handler.ExecuteCommand(command);
+            if (result is NextApiFileResponse fileResponse)
+            {
+                await context.Response.SendNextApiFileResponse(fileResponse);
+                return;
+            }
+
+            await context.Response.SendJson(result);
         }
 
         /// <summary>

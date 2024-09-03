@@ -47,11 +47,13 @@ namespace NextApi.Server
                     srOptions.MaximumReceiveMessageSize = nextApiBuilder.MaximumReceiveMessageSize;
                 })
                 .AddMessagePackProtocol(mpOptions =>
-                {
-                    mpOptions.FormatterResolvers = new List<IFormatterResolver>
+                {  
+                    mpOptions.SerializerOptions = MessagePackSerializerOptions.Standard.WithResolver(
+                    CompositeResolver.Create(new IFormatterResolver[]
                     {
-                        TypelessContractlessStandardResolver.Instance
-                    };
+                        TypelessContractlessStandardResolver.Instance,
+                        // Add other resolvers if needed
+                    }));
                 });
             if (nextApiBuilder.DisablePermissionValidation)
             {
@@ -100,9 +102,11 @@ namespace NextApi.Server
             builder.UseMvc(routes =>
             {
                 routes.MapNextApiMethod($"{path}/http",
-                    (http, context) => http.ProcessRequestAsync(context));
+                    (http, context) => http.ProcessNextApiHttpRequestAsync(context));
                 routes.MapNextApiMethod($"{path}/http/permissions",
                     (http, context) => http.GetSupportedPermissions(context));
+                routes.MapNextApiMethod(path + "/http/{service}/{method}",
+                    (http, context) => http.ProcessHttpRequestAsync(context));
             });
         }
 
